@@ -1,0 +1,53 @@
+name:                  piserv
+version:               0.0.1.0
+synopsis:              Raspberry Pi - Wiring Web API
+description:           See README.md
+homepage:              https://github.com/jamesthompson/piserv
+license:               BSD3
+license-file:          LICENSE
+author:                James R. Thompson
+maintainer:            jamesthompsonoxford@gmail.com
+copyright:             2017 James R. Thompson
+category:              Web
+build-type:            Simple
+extra-source-files:    README.md
+                     , stack.yaml
+                     , LICENSE
+cabal-version:         >=1.10
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Piserv.API
+                     , Piserv.Handlers
+  build-depends:       base
+                     , bytestring
+                     , bytestring-conversion
+                     , mtl
+                     , servant
+                     , servant-server
+                     , text
+                     , warp
+                     , wiringPi
+  default-language:    Haskell2010
+
+executable piserver
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  ghc-options:         -Wall
+  build-depends:       base
+                     , bytestring
+                     , bytestring-conversion
+                     , piserv
+                     , mtl
+                     , servant
+                     , servant-server
+                     , text
+                     , warp
+                     , wiringPi
+  default-language:    Haskell2010
+
+
+
+source-repository head
+  type:     git
+  location: https://github.com/jamesthompson/piserv
