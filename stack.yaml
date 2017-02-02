@@ -1,0 +1,9 @@
+resolver: lts-7.18
+packages:
+- '.'
+flags: {}
+extra-package-dbs: []
+extra-deps:
+- wiringPi-1.0
+- hsc2hs-0.68.1
+
