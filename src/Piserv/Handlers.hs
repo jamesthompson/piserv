@@ -8,8 +8,8 @@ import           Control.Monad.Error.Class  (throwError)
 import           Control.Monad.IO.Class     (liftIO)
 import           Data.ByteString.Conversion (toByteString)
 import           Data.Semigroup             ((<>))
-import           Data.Text                  (Text, pack)
-import           Data.Word                  (Word8)
+import           Network.HTTP.Types.Status  (ok200)
+import           Network.Wai                (responseLBS)
 import           Piserv.API
 import           Servant                    ((:<|>) (..), NoContent (..))
 import           Servant.Server             (Handler, Server, err404, err500,
@@ -17,7 +17,7 @@ import           Servant.Server             (Handler, Server, err404, err500,
 import           System.Hardware.WiringPi
 
 
-piservServer :: Server API
+piservServer :: Server PIAPI
 piservServer = pinModePwmOutput
           :<|> pinModeGpioClock
           :<|> pinModeWpi
@@ -43,6 +43,10 @@ piservServer = pinModePwmOutput
           :<|> pinToBcmGpioWpi
           :<|> pinToBcmGpioGpio
           :<|> pinToBcmGpioPhys
+          :<|> health
+          :<|> serveDocs
+  where serveDocs _ respond =
+          respond $ responseLBS ok200 [("Content-Type", "text/plain")] docsBS
 
 runPIO
   :: IO a
@@ -102,29 +106,23 @@ pullUpDnControlPhys
 pullUpDnControlPhys (PinNumber n) (PudValue v) =
   runPIO (pullUpDnControl (Phys n) v) >> return NoContent
 
-valueToText
-  :: Value
-  -> Text
-valueToText LOW  = "low"
-valueToText HIGH = "high"
-
 digitalReadWpi
   :: PinNumber
-  -> Handler Text
+  -> Handler Value
 digitalReadWpi (PinNumber n) =
-  valueToText <$> runPIO (digitalRead (Wpi n))
+  runPIO (digitalRead (Wpi n))
 
 digitalReadGpio
   :: PinNumber
-  -> Handler Text
+  -> Handler Value
 digitalReadGpio (PinNumber n) =
-  valueToText <$> runPIO (digitalRead (Gpio n))
+  runPIO (digitalRead (Gpio n))
 
 digitalReadPhys
   :: PinNumber
-  -> Handler Text
+  -> Handler Value
 digitalReadPhys (PinNumber n) =
-  valueToText <$> runPIO (digitalRead (Phys n))
+  runPIO (digitalRead (Phys n))
 
 digitalWriteWpi
   :: PinNumber
@@ -169,9 +167,9 @@ pwmWritePhys (PinNumber n) (PwmVal v) =
   runPIO (pwmWrite (Phys n) v) >> return NoContent
 
 digitalWriteByte'
-  :: Word8
+  :: DigByte
   -> Handler NoContent
-digitalWriteByte' w =
+digitalWriteByte' (DigByte w) =
   runPIO (digitalWriteByte w) >> return NoContent
 
 pwmSetMode'
@@ -192,36 +190,39 @@ pwmSetClock'
 pwmSetClock' (PwmValClock c) =
   runPIO (pwmSetClock c) >> return NoContent
 
-piBoardRev' :: Handler Text
-piBoardRev' = pack . show <$> runPIO piBoardRev
+piBoardRev' :: Handler Int
+piBoardRev' = runPIO piBoardRev
 
 pinToBcmGpioWpi
   :: PinNumber
-  -> Handler Text
+  -> Handler Int
 pinToBcmGpioWpi (PinNumber n) = do
   res <- runPIO (return (pinToBcmGpio (Wpi n)))
   case res of
-    Just r  -> return (pack (show r))
+    Just r  -> return r
     Nothing -> throwError (err404 { errBody = "Can't convert BCM to GPIO for pin: " <>
                                               toByteString (show n) })
 
 pinToBcmGpioGpio
   :: PinNumber
-  -> Handler Text
+  -> Handler Int
 pinToBcmGpioGpio (PinNumber n) = do
   res <- runPIO (return (pinToBcmGpio (Gpio n)))
   case res of
-    Just r  -> return (pack (show r))
+    Just r  -> return r
     Nothing -> throwError (err404 { errBody = "Can't convert BCM to GPIO for pin: " <>
                                               toByteString (show n) })
 
 pinToBcmGpioPhys
   :: PinNumber
-  -> Handler Text
+  -> Handler Int
 pinToBcmGpioPhys (PinNumber n) = do
   res <- runPIO (return (pinToBcmGpio (Phys n)))
   case res of
-    Just r  -> return (pack (show r))
+    Just r  -> return r
     Nothing -> throwError (err404 { errBody = "Can't convert BCM to GPIO for pin: " <>
                                               toByteString (show n) })
+
+health :: Handler Health
+health = return OK
 

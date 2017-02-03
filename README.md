@@ -8,6 +8,9 @@ Please install the low-level [wiringpi](http://wiringpi.com/) library first on y
 > sudo apt-get install wiringpi
 ```
 
+
+## Running the server
+
 Download this repo and use the zipped binary `piserver` on your RPi.
 
 Then run the binary on your RPi as either `root` or by setting the environment variable in your profile as follows:
@@ -16,13 +19,15 @@ Then run the binary on your RPi as either `root` or by setting the environment v
 > echo "export WIRINGPI_GPIOMEM=1" >> ~/.profile
 ```
 
-The server will run on `PORT=8080`.
+The server will run by default on `PORT=8080`. You can parameterize it at runtime as follows:
+
+```
+> ./piserver 8081 #where 8081 is port 8081 for example
+```
 
 You can test the server using a simple curl like:
 
 ```
 curl -i http://localhost:8080/piboardrev
 ```
-
-You can see the available routings in the [API](https://github.com/jamesthompson/piserv/blob/master/src/Piserv/API.hs#L98-L122) file.
 
