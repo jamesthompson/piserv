@@ -238,10 +238,14 @@ type PIAPI =
   :<|> "pintobcmgpio" :> "gpio" :> Capture "pinNumber" PinNumber :> Get '[PlainText] Int
   :<|> "pintobcmgpio" :> "phys" :> Capture "pinNumber" PinNumber :> Get '[PlainText] Int
   :<|> "health" :> Get '[PlainText] Health
-  :<|> Raw
 
 piApi :: Proxy PIAPI
 piApi = Proxy
+
+type DOCSAPI = PIAPI :<|> Raw
+
+api :: Proxy DOCSAPI
+api = Proxy
 
 docsPiApi :: API
 docsPiApi = docs piApi
@@ -252,6 +256,4 @@ docsBS = encodeUtf8
        . markdown
        $ docsWithIntros [intro] piApi
   where intro = DocIntro "Piserver" ["This is the Piserver's API", "Please read carefully!"]
-
-type PIAPIDOCS = PIAPI :<|> Raw
 

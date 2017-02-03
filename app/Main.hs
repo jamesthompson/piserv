@@ -16,5 +16,5 @@ main = do
        _   -> error "Please provide a single integer argument representing port, e.g. 8080)"
   wiringPiSetupGpio
   putStrLn "Piserv running on PORT=8080."
-  run port (serve piApi piservServer)
+  run port (serve api server)
 

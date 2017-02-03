@@ -17,6 +17,11 @@ import           Servant.Server             (Handler, Server, err404, err500,
 import           System.Hardware.WiringPi
 
 
+server :: Server DOCSAPI
+server = piservServer :<|> serveDocs
+  where serveDocs _ respond =
+          respond $ responseLBS ok200 [("Content-Type", "text/plain")] docsBS
+
 piservServer :: Server PIAPI
 piservServer = pinModePwmOutput
           :<|> pinModeGpioClock
@@ -44,9 +49,6 @@ piservServer = pinModePwmOutput
           :<|> pinToBcmGpioGpio
           :<|> pinToBcmGpioPhys
           :<|> health
-          :<|> serveDocs
-  where serveDocs _ respond =
-          respond $ responseLBS ok200 [("Content-Type", "text/plain")] docsBS
 
 runPIO
   :: IO a
