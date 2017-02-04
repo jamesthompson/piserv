@@ -4,7 +4,7 @@ This is the Piserver's API
 
 Please read carefully!
 
-## GET /digitalread/gpio/:pinNumber
+## GET /digitalread/gpio/:gpioPinNumber
 
 #### Authentication
 
@@ -15,7 +15,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *gpioPinNumber*: (int) 0 <= n <= 31
 
 #### Response:
 
@@ -38,7 +38,7 @@ low
 high
 ```
 
-## GET /digitalread/phys/:pinNumber
+## GET /digitalread/phys/:physPinNumber
 
 #### Authentication
 
@@ -49,7 +49,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *physPinNumber*: (int) 3, 5, 7, 8, 10, 11, 12, 13, 15, 16, 18, 19, 21, 22, 23, 24, 26, 27, 28, 29, 31, 32, 33, 35, 36, 37, 38, 40, 51, 52, 53, 54
 
 #### Response:
 
@@ -72,7 +72,7 @@ low
 high
 ```
 
-## GET /digitalread/wpi/:pinNumber
+## GET /digitalread/wpi/:wpiPinNumber
 
 #### Authentication
 
@@ -83,7 +83,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *wpiPinNumber*: (int) 0 <= n <= 31
 
 #### Response:
 
@@ -106,7 +106,7 @@ low
 high
 ```
 
-## POST /digitalwrite/gpio/:pinNumber/:pinValue
+## POST /digitalwrite/gpio/:gpioPinNumber/:pinValue
 
 #### Authentication
 
@@ -117,7 +117,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *gpioPinNumber*: (int) 0 <= n <= 31
 - *pinValue*: (string) low || high
 
 #### Response:
@@ -135,7 +135,7 @@ Clients must supply the following data
 
 ```
 
-## POST /digitalwrite/phys/:pinNumber/:pinValue
+## POST /digitalwrite/phys/:physPinNumber/:pinValue
 
 #### Authentication
 
@@ -146,7 +146,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *physPinNumber*: (int) 3, 5, 7, 8, 10, 11, 12, 13, 15, 16, 18, 19, 21, 22, 23, 24, 26, 27, 28, 29, 31, 32, 33, 35, 36, 37, 38, 40, 51, 52, 53, 54
 - *pinValue*: (string) low || high
 
 #### Response:
@@ -164,7 +164,7 @@ Clients must supply the following data
 
 ```
 
-## POST /digitalwrite/wpi/:pinNumber/:pinValue
+## POST /digitalwrite/wpi/:wpiPinNumber/:pinValue
 
 #### Authentication
 
@@ -175,7 +175,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *wpiPinNumber*: (int) 0 <= n <= 31
 - *pinValue*: (string) low || high
 
 #### Response:
@@ -193,7 +193,7 @@ Clients must supply the following data
 
 ```
 
-## POST /digitalwritebytes/:byte
+## POST /digitalwritebyte/:byte
 
 #### Authentication
 
@@ -269,7 +269,7 @@ Clients must supply the following data
 2
 ```
 
-## POST /pinmode/gpio/:pinNumber/:digitalMode
+## POST /pinmode/gpio/:gpioPinNumber/:digitalMode
 
 #### Authentication
 
@@ -280,7 +280,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *gpioPinNumber*: (int) 0 <= n <= 31
 - *digitalMode*: (string) input || output
 
 #### Response:
@@ -298,7 +298,7 @@ Clients must supply the following data
 
 ```
 
-## POST /pinmode/phys/:pinNumber/:digitalMode
+## POST /pinmode/phys/:physPinNumber/:digitalMode
 
 #### Authentication
 
@@ -309,7 +309,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *physPinNumber*: (int) 3, 5, 7, 8, 10, 11, 12, 13, 15, 16, 18, 19, 21, 22, 23, 24, 26, 27, 28, 29, 31, 32, 33, 35, 36, 37, 38, 40, 51, 52, 53, 54
 - *digitalMode*: (string) input || output
 
 #### Response:
@@ -375,7 +375,7 @@ Clients must supply the following data
 
 ```
 
-## POST /pinmode/wpi/:pinNumber/:digitalMode
+## POST /pinmode/wpi/:wpiPinNumber/:digitalMode
 
 #### Authentication
 
@@ -386,7 +386,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *wpiPinNumber*: (int) 0 <= n <= 31
 - *digitalMode*: (string) input || output
 
 #### Response:
@@ -404,7 +404,7 @@ Clients must supply the following data
 
 ```
 
-## GET /pintobcmgpio/gpio/:pinNumber
+## GET /pintobcmgpio/gpio/:gpioPinNumber
 
 #### Authentication
 
@@ -415,7 +415,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *gpioPinNumber*: (int) 0 <= n <= 31
 
 #### Response:
 
@@ -432,7 +432,7 @@ Clients must supply the following data
 2
 ```
 
-## GET /pintobcmgpio/phys/:pinNumber
+## GET /pintobcmgpio/phys/:physPinNumber
 
 #### Authentication
 
@@ -443,7 +443,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *physPinNumber*: (int) 3, 5, 7, 8, 10, 11, 12, 13, 15, 16, 18, 19, 21, 22, 23, 24, 26, 27, 28, 29, 31, 32, 33, 35, 36, 37, 38, 40, 51, 52, 53, 54
 
 #### Response:
 
@@ -460,7 +460,7 @@ Clients must supply the following data
 2
 ```
 
-## GET /pintobcmgpio/wpi/:pinNumber
+## GET /pintobcmgpio/wpi/:wpiPinNumber
 
 #### Authentication
 
@@ -471,7 +471,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *wpiPinNumber*: (int) 0 <= n <= 31
 
 #### Response:
 
@@ -488,7 +488,7 @@ Clients must supply the following data
 2
 ```
 
-## POST /pullupdncontrol/gpio/:pinNumber/:pudValue
+## POST /pullupdncontrol/gpio/:gpioPinNumber/:pudValue
 
 #### Authentication
 
@@ -499,7 +499,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *gpioPinNumber*: (int) 0 <= n <= 31
 - *pudValue*: (string) pud_off || pud_up || pud_down
 
 #### Response:
@@ -517,7 +517,7 @@ Clients must supply the following data
 
 ```
 
-## POST /pullupdncontrol/phys/:pinNumber/:pudValue
+## POST /pullupdncontrol/phys/:physPinNumber/:pudValue
 
 #### Authentication
 
@@ -528,7 +528,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *physPinNumber*: (int) 3, 5, 7, 8, 10, 11, 12, 13, 15, 16, 18, 19, 21, 22, 23, 24, 26, 27, 28, 29, 31, 32, 33, 35, 36, 37, 38, 40, 51, 52, 53, 54
 - *pudValue*: (string) pud_off || pud_up || pud_down
 
 #### Response:
@@ -546,7 +546,7 @@ Clients must supply the following data
 
 ```
 
-## POST /pullupdncontrol/wpi/:pinNumber/:pudValue
+## POST /pullupdncontrol/wpi/:wpiPinNumber/:pudValue
 
 #### Authentication
 
@@ -557,7 +557,7 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
+- *wpiPinNumber*: (int) 0 <= n <= 31
 - *pudValue*: (string) pud_off || pud_up || pud_down
 
 #### Response:
@@ -659,7 +659,7 @@ Clients must supply the following data
 
 ```
 
-## POST /pwmwrite/gpio/:pinNumber/:pwmValue
+## POST /pwmwrite/gpio/:gpioPinNumber/:pwmValue
 
 #### Authentication
 
@@ -670,8 +670,8 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
-- *pwmValue*: (int)
+- *gpioPinNumber*: (int) 0 <= n <= 31
+- *pwmValue*: (int) default range = 0 <= n <= 1024, but range can go to 4096 by calling pwmsetrange
 
 #### Response:
 
@@ -688,7 +688,7 @@ Clients must supply the following data
 
 ```
 
-## POST /pwmwrite/phys/:pinNumber/:pwmValue
+## POST /pwmwrite/phys/:physPinNumber/:pwmValue
 
 #### Authentication
 
@@ -699,8 +699,8 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
-- *pwmValue*: (int)
+- *physPinNumber*: (int) 3, 5, 7, 8, 10, 11, 12, 13, 15, 16, 18, 19, 21, 22, 23, 24, 26, 27, 28, 29, 31, 32, 33, 35, 36, 37, 38, 40, 51, 52, 53, 54
+- *pwmValue*: (int) default range = 0 <= n <= 1024, but range can go to 4096 by calling pwmsetrange
 
 #### Response:
 
@@ -717,7 +717,7 @@ Clients must supply the following data
 
 ```
 
-## POST /pwmwrite/wpi/:pinNumber/:pwmValue
+## POST /pwmwrite/wpi/:wpiPinNumber/:pwmValue
 
 #### Authentication
 
@@ -728,8 +728,8 @@ Clients must supply the following data
 
 #### Captures:
 
-- *pinNumber*: (int) 0 <= n < 27
-- *pwmValue*: (int)
+- *wpiPinNumber*: (int) 0 <= n <= 31
+- *pwmValue*: (int) default range = 0 <= n <= 1024, but range can go to 4096 by calling pwmsetrange
 
 #### Response:
 
