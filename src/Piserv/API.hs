@@ -15,7 +15,6 @@ import           Data.ByteString.Conversion (toByteString)
 import           Data.ByteString.Lazy       (ByteString)
 import           Data.Proxy
 import           Data.Semigroup             ((<>))
-import           Data.Text                  (Text)
 import           Data.Text.Lazy             (pack)
 import           Data.Text.Lazy.Encoding    (encodeUtf8)
 import           Data.Text.Read             (decimal)
@@ -34,7 +33,9 @@ data DigitalMode
   | DOutput
   deriving (Eq, Show)
 
-newtype PinNumber = PinNumber Int deriving (Eq, Show)
+newtype WpiPinNumber = WpiPinNumber Int deriving (Eq, Show)
+newtype GpioPinNumber = GpioPinNumber Int deriving (Eq, Show)
+newtype PhysPinNumber = PhysPinNumber Int deriving (Eq, Show)
 newtype PudValue = PudValue Pud deriving (Eq, Show)
 newtype PinValue = PinValue Value deriving (Eq, Show)
 newtype PwmVal = PwmVal Word16 deriving (Eq, Show)
@@ -59,21 +60,89 @@ instance ToSample DigitalMode where
     [ ("When the 'digitalMode' is input", DInput)
     , ("When the 'digitalMode' is output", DOutput) ]
 
-instance FromHttpApiData PinNumber where
+instance FromHttpApiData WpiPinNumber where
   parseUrlPiece num = case decimal num of
-    Right (n, _) -> if n <= 26 && n > 0
-                    then pure (PinNumber n)
+    Right (n, _) -> if n >= 0 && n <= 31
+                    then pure (WpiPinNumber n)
                     else Left (num <> ": pin is out of bounds")
     Left _       -> Left num
   parseQueryParam = parseUrlPiece
 
-instance ToSample PinNumber where
-  toSamples _ = singleSample (PinNumber 1)
+instance ToSample WpiPinNumber where
+  toSamples _ = singleSample (WpiPinNumber 1)
 
-instance ToCapture (Capture "pinNumber" PinNumber) where
+instance ToCapture (Capture "wpiPinNumber" WpiPinNumber) where
   toCapture _ =
-    DocCapture "pinNumber"
-               "(int) 0 <= n < 27"
+    DocCapture "wpiPinNumber"
+               "(int) 0 <= n <= 31"
+
+instance FromHttpApiData GpioPinNumber where
+  parseUrlPiece num = case decimal num of
+    Right (n, _) -> if n >= 0 && n <= 31
+                    then pure (GpioPinNumber n)
+                    else Left (num <> ": pin is out of bounds")
+    Left _       -> Left num
+  parseQueryParam = parseUrlPiece
+
+instance ToSample GpioPinNumber where
+  toSamples _ = singleSample (GpioPinNumber 1)
+
+instance ToCapture (Capture "gpioPinNumber" GpioPinNumber) where
+  toCapture _ =
+    DocCapture "gpioPinNumber"
+               "(int) 0 <= n <= 31"
+
+instance FromHttpApiData PhysPinNumber where
+  parseUrlPiece num = case decimal num of
+    Right (n, _) -> case (n :: Int) of
+      3  -> pure (PhysPinNumber 3)
+      5  -> pure (PhysPinNumber 5)
+      7  -> pure (PhysPinNumber 7)
+      8  -> pure (PhysPinNumber 8)
+      10 -> pure (PhysPinNumber 10)
+      11 -> pure (PhysPinNumber 11)
+      12 -> pure (PhysPinNumber 12)
+      13 -> pure (PhysPinNumber 13)
+      15 -> pure (PhysPinNumber 15)
+      16 -> pure (PhysPinNumber 16)
+      18 -> pure (PhysPinNumber 18)
+      19 -> pure (PhysPinNumber 19)
+      21 -> pure (PhysPinNumber 21)
+      22 -> pure (PhysPinNumber 22)
+      23 -> pure (PhysPinNumber 23)
+      24 -> pure (PhysPinNumber 24)
+      26 -> pure (PhysPinNumber 26)
+      27 -> pure (PhysPinNumber 27)
+      28 -> pure (PhysPinNumber 28)
+      29 -> pure (PhysPinNumber 29)
+      31 -> pure (PhysPinNumber 31)
+      32 -> pure (PhysPinNumber 32)
+      33 -> pure (PhysPinNumber 33)
+      35 -> pure (PhysPinNumber 35)
+      36 -> pure (PhysPinNumber 36)
+      37 -> pure (PhysPinNumber 37)
+      38 -> pure (PhysPinNumber 38)
+      40 -> pure (PhysPinNumber 40)
+      51 -> pure (PhysPinNumber 51)
+      52 -> pure (PhysPinNumber 52)
+      53 -> pure (PhysPinNumber 53)
+      54 -> pure (PhysPinNumber 54)
+      _  -> Left (num <> ": pin is out of bounds")
+    Left _       -> Left num
+  parseQueryParam = parseUrlPiece
+
+instance ToSample PhysPinNumber where
+  toSamples _ = singleSample (PhysPinNumber 3)
+
+instance ToCapture (Capture "physPinNumber" PhysPinNumber) where
+  toCapture _ =
+    DocCapture "physPinNumber"
+               ("(int) 3, 5, 7, 8, 10,"    <>
+                " 11, 12, 13, 15, 16, 18," <>
+                " 19, 21, 22, 23, 24, 26," <>
+                " 27, 28, 29, 31, 32, 33," <>
+                " 35, 36, 37, 38, 40, 51," <>
+                " 52, 53, 54")
 
 instance FromHttpApiData PudValue where
   parseUrlPiece "pud_off"  = pure (PudValue PUD_OFF)
@@ -116,23 +185,25 @@ instance ToHttpApiData PinValue where
 
 instance FromHttpApiData PwmVal where
   parseUrlPiece num = case decimal num of
-    Right (n, _) -> pure (PwmVal n)
+    Right (n, _) -> if n >= 0 && n <=4096
+                    then pure (PwmVal n)
+                    else Left (num <> ": pwm value is out of maximum range 0 <= n <= 4096")
     Left _       -> Left num
   parseQueryParam = parseUrlPiece
 
 instance ToCapture (Capture "pwmValue" PwmVal) where
   toCapture _ =
     DocCapture "pwmValue"
-               "(int)"
+               "(int) default range = 0 <= n <= 1024, but range can go to 4096 by calling pwmsetrange"
 
 instance ToSample PwmVal where
   toSamples _ = singleSample (PwmVal 1024)
 
 instance FromHttpApiData PwmValRange where
   parseUrlPiece num = case decimal num of
-    Right (n, _)  -> if n <= 4096
+    Right (n, _)  -> if n >= 0 && n <= 4096
                      then pure (PwmValRange n)
-                     else Left (num <> ": is out of range, default = 1024, max 4096")
+                     else Left (num <> ": is out of range, default max = 1024, absolute max 4096")
     Left _        -> Left num
   parseQueryParam = parseUrlPiece
 
@@ -214,29 +285,29 @@ instance ToSample Health where
 type PIAPI =
        "pinmode" :> "wpi" :> "1" :> "pwm_output" :> PostAccepted '[PlainText] NoContent
   :<|> "pinmode" :> "wpi" :> "7" :> "gpio_clock" :> PostAccepted '[PlainText] NoContent
-  :<|> "pinmode" :> "wpi" :> Capture "pinNumber" PinNumber :> Capture "digitalMode" DigitalMode :> PostAccepted '[PlainText] NoContent
-  :<|> "pinmode" :> "gpio" :> Capture "pinNumber" PinNumber :> Capture "digitalMode" DigitalMode :> PostAccepted '[PlainText] NoContent
-  :<|> "pinmode" :> "phys" :> Capture "pinNumber" PinNumber :> Capture "digitalMode" DigitalMode :> PostAccepted '[PlainText] NoContent
-  :<|> "pullupdncontrol" :> "wpi" :> Capture "pinNumber" PinNumber :> Capture "pudValue" PudValue :> PostAccepted '[PlainText] NoContent
-  :<|> "pullupdncontrol" :> "gpio" :> Capture "pinNumber" PinNumber :> Capture "pudValue" PudValue :> PostAccepted '[PlainText] NoContent
-  :<|> "pullupdncontrol" :> "phys" :> Capture "pinNumber" PinNumber :> Capture "pudValue" PudValue :> PostAccepted '[PlainText] NoContent
-  :<|> "digitalread" :> "wpi" :> Capture "pinNumber" PinNumber :> Get '[PlainText] Value
-  :<|> "digitalread" :> "gpio" :> Capture "pinNumber" PinNumber :> Get '[PlainText] Value
-  :<|> "digitalread" :> "phys" :> Capture "pinNumber" PinNumber :> Get '[PlainText] Value
-  :<|> "digitalwrite" :> "wpi" :> Capture "pinNumber" PinNumber :> Capture "pinValue" PinValue :> PostAccepted '[PlainText] NoContent
-  :<|> "digitalwrite" :> "gpio" :> Capture "pinNumber" PinNumber :> Capture "pinValue" PinValue :> PostAccepted '[PlainText] NoContent
-  :<|> "digitalwrite" :> "phys" :> Capture "pinNumber" PinNumber :> Capture "pinValue" PinValue :> PostAccepted '[PlainText] NoContent
-  :<|> "pwmwrite" :> "wpi" :> Capture "pinNumber" PinNumber :> Capture "pwmValue" PwmVal :> PostAccepted '[PlainText] NoContent
-  :<|> "pwmwrite" :> "gpio" :> Capture "pinNumber" PinNumber :> Capture "pwmValue" PwmVal :> PostAccepted '[PlainText] NoContent
-  :<|> "pwmwrite" :> "phys" :> Capture "pinNumber" PinNumber :> Capture "pwmValue" PwmVal :> PostAccepted '[PlainText] NoContent
-  :<|> "digitalwritebytes" :> Capture "byte" DigByte :> PostAccepted '[PlainText] NoContent
+  :<|> "pinmode" :> "wpi" :> Capture "wpiPinNumber" WpiPinNumber :> Capture "digitalMode" DigitalMode :> PostAccepted '[PlainText] NoContent
+  :<|> "pinmode" :> "gpio" :> Capture "gpioPinNumber" GpioPinNumber :> Capture "digitalMode" DigitalMode :> PostAccepted '[PlainText] NoContent
+  :<|> "pinmode" :> "phys" :> Capture "physPinNumber" PhysPinNumber :> Capture "digitalMode" DigitalMode :> PostAccepted '[PlainText] NoContent
+  :<|> "pullupdncontrol" :> "wpi" :> Capture "wpiPinNumber" WpiPinNumber :> Capture "pudValue" PudValue :> PostAccepted '[PlainText] NoContent
+  :<|> "pullupdncontrol" :> "gpio" :> Capture "gpioPinNumber" GpioPinNumber :> Capture "pudValue" PudValue :> PostAccepted '[PlainText] NoContent
+  :<|> "pullupdncontrol" :> "phys" :> Capture "physPinNumber" PhysPinNumber :> Capture "pudValue" PudValue :> PostAccepted '[PlainText] NoContent
+  :<|> "digitalread" :> "wpi" :> Capture "wpiPinNumber" WpiPinNumber :> Get '[PlainText] Value
+  :<|> "digitalread" :> "gpio" :> Capture "gpioPinNumber" GpioPinNumber :> Get '[PlainText] Value
+  :<|> "digitalread" :> "phys" :> Capture "physPinNumber" PhysPinNumber :> Get '[PlainText] Value
+  :<|> "digitalwrite" :> "wpi" :> Capture "wpiPinNumber" WpiPinNumber :> Capture "pinValue" PinValue :> PostAccepted '[PlainText] NoContent
+  :<|> "digitalwrite" :> "gpio" :> Capture "gpioPinNumber" GpioPinNumber :> Capture "pinValue" PinValue :> PostAccepted '[PlainText] NoContent
+  :<|> "digitalwrite" :> "phys" :> Capture "physPinNumber" PhysPinNumber :> Capture "pinValue" PinValue :> PostAccepted '[PlainText] NoContent
+  :<|> "pwmwrite" :> "wpi" :> Capture "wpiPinNumber" WpiPinNumber :> Capture "pwmValue" PwmVal :> PostAccepted '[PlainText] NoContent
+  :<|> "pwmwrite" :> "gpio" :> Capture "gpioPinNumber" GpioPinNumber :> Capture "pwmValue" PwmVal :> PostAccepted '[PlainText] NoContent
+  :<|> "pwmwrite" :> "phys" :> Capture "physPinNumber" PhysPinNumber :> Capture "pwmValue" PwmVal :> PostAccepted '[PlainText] NoContent
+  :<|> "digitalwritebyte" :> Capture "byte" DigByte :> PostAccepted '[PlainText] NoContent
   :<|> "pwmsetmode" :> Capture "pwmMode" PwmMde :> PostAccepted '[PlainText] NoContent
   :<|> "pwmsetrange" :> Capture "pwmRange" PwmValRange :> PostAccepted '[PlainText] NoContent
   :<|> "pwmsetclock" :> Capture "pwmClock" PwmValClock :> PostAccepted '[PlainText] NoContent
   :<|> "piboardrev" :> Get '[PlainText] Int
-  :<|> "pintobcmgpio" :> "wpi" :> Capture "pinNumber" PinNumber :> Get '[PlainText] Int
-  :<|> "pintobcmgpio" :> "gpio" :> Capture "pinNumber" PinNumber :> Get '[PlainText] Int
-  :<|> "pintobcmgpio" :> "phys" :> Capture "pinNumber" PinNumber :> Get '[PlainText] Int
+  :<|> "pintobcmgpio" :> "wpi" :> Capture "wpiPinNumber" WpiPinNumber :> Get '[PlainText] Int
+  :<|> "pintobcmgpio" :> "gpio" :> Capture "gpioPinNumber" GpioPinNumber :> Get '[PlainText] Int
+  :<|> "pintobcmgpio" :> "phys" :> Capture "physPinNumber" PhysPinNumber :> Get '[PlainText] Int
   :<|> "health" :> Get '[PlainText] Health
 
 piApi :: Proxy PIAPI

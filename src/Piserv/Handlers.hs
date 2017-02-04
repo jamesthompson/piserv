@@ -67,105 +67,105 @@ pinModeGpioClock :: Handler NoContent
 pinModeGpioClock = runPIO (pinMode (Wpi 7) GPIO_CLOCK) >> return NoContent
 
 pinModeWpi
-  :: PinNumber
+  :: WpiPinNumber
   -> DigitalMode
   -> Handler NoContent
-pinModeWpi (PinNumber n) DInput  = runPIO (pinMode (Wpi n) INPUT) >> return NoContent
-pinModeWpi (PinNumber n) DOutput = runPIO (pinMode (Wpi n) OUTPUT) >> return NoContent
+pinModeWpi (WpiPinNumber n) DInput  = runPIO (pinMode (Wpi n) INPUT) >> return NoContent
+pinModeWpi (WpiPinNumber n) DOutput = runPIO (pinMode (Wpi n) OUTPUT) >> return NoContent
 
 pinModeGpio
-  :: PinNumber
+  :: GpioPinNumber
   -> DigitalMode
   -> Handler NoContent
-pinModeGpio (PinNumber n) DInput  = runPIO (pinMode (Gpio n) INPUT) >> return NoContent
-pinModeGpio (PinNumber n) DOutput = runPIO (pinMode (Gpio n) OUTPUT) >> return NoContent
+pinModeGpio (GpioPinNumber n) DInput  = runPIO (pinMode (Gpio n) INPUT) >> return NoContent
+pinModeGpio (GpioPinNumber n) DOutput = runPIO (pinMode (Gpio n) OUTPUT) >> return NoContent
 
 pinModePhys
-  :: PinNumber
+  :: PhysPinNumber
   -> DigitalMode
   -> Handler NoContent
-pinModePhys (PinNumber n) DInput  = runPIO (pinMode (Phys n) INPUT) >> return NoContent
-pinModePhys (PinNumber n) DOutput = runPIO (pinMode (Phys n) OUTPUT) >> return NoContent
+pinModePhys (PhysPinNumber n) DInput  = runPIO (pinMode (Phys n) INPUT) >> return NoContent
+pinModePhys (PhysPinNumber n) DOutput = runPIO (pinMode (Phys n) OUTPUT) >> return NoContent
 
 pullUpDnControlWpi
-  :: PinNumber
+  :: WpiPinNumber
   -> PudValue
   -> Handler NoContent
-pullUpDnControlWpi (PinNumber n) (PudValue v) =
+pullUpDnControlWpi (WpiPinNumber n) (PudValue v) =
   runPIO (pullUpDnControl (Wpi n) v) >> return NoContent
 
 pullUpDnControlGpio
-  :: PinNumber
+  :: GpioPinNumber
   -> PudValue
   -> Handler NoContent
-pullUpDnControlGpio (PinNumber n) (PudValue v) =
+pullUpDnControlGpio (GpioPinNumber n) (PudValue v) =
   runPIO (pullUpDnControl (Gpio n) v) >> return NoContent
 
 pullUpDnControlPhys
-  :: PinNumber
+  :: PhysPinNumber
   -> PudValue
   -> Handler NoContent
-pullUpDnControlPhys (PinNumber n) (PudValue v) =
+pullUpDnControlPhys (PhysPinNumber n) (PudValue v) =
   runPIO (pullUpDnControl (Phys n) v) >> return NoContent
 
 digitalReadWpi
-  :: PinNumber
+  :: WpiPinNumber
   -> Handler Value
-digitalReadWpi (PinNumber n) =
+digitalReadWpi (WpiPinNumber n) =
   runPIO (digitalRead (Wpi n))
 
 digitalReadGpio
-  :: PinNumber
+  :: GpioPinNumber
   -> Handler Value
-digitalReadGpio (PinNumber n) =
+digitalReadGpio (GpioPinNumber n) =
   runPIO (digitalRead (Gpio n))
 
 digitalReadPhys
-  :: PinNumber
+  :: PhysPinNumber
   -> Handler Value
-digitalReadPhys (PinNumber n) =
+digitalReadPhys (PhysPinNumber n) =
   runPIO (digitalRead (Phys n))
 
 digitalWriteWpi
-  :: PinNumber
+  :: WpiPinNumber
   -> PinValue
   -> Handler NoContent
-digitalWriteWpi (PinNumber n) (PinValue v) =
+digitalWriteWpi (WpiPinNumber n) (PinValue v) =
   runPIO (digitalWrite (Wpi n) v) >> return NoContent
 
 digitalWriteGpio
-  :: PinNumber
+  :: GpioPinNumber
   -> PinValue
   -> Handler NoContent
-digitalWriteGpio (PinNumber n) (PinValue v) =
+digitalWriteGpio (GpioPinNumber n) (PinValue v) =
   runPIO (digitalWrite (Gpio n) v) >> return NoContent
 
 digitalWritePhys
-  :: PinNumber
+  :: PhysPinNumber
   -> PinValue
   -> Handler NoContent
-digitalWritePhys (PinNumber n) (PinValue v) =
+digitalWritePhys (PhysPinNumber n) (PinValue v) =
   runPIO (digitalWrite (Phys n) v) >> return NoContent
 
 pwmWriteWpi
-  :: PinNumber
+  :: WpiPinNumber
   -> PwmVal
   -> Handler NoContent
-pwmWriteWpi (PinNumber n) (PwmVal v) =
+pwmWriteWpi (WpiPinNumber n) (PwmVal v) =
   runPIO (pwmWrite (Wpi n) v) >> return NoContent
 
 pwmWriteGpio
-  :: PinNumber
+  :: GpioPinNumber
   -> PwmVal
   -> Handler NoContent
-pwmWriteGpio (PinNumber n) (PwmVal v) =
+pwmWriteGpio (GpioPinNumber n) (PwmVal v) =
   runPIO (pwmWrite (Gpio n) v) >> return NoContent
 
 pwmWritePhys
-  :: PinNumber
+  :: PhysPinNumber
   -> PwmVal
   -> Handler NoContent
-pwmWritePhys (PinNumber n) (PwmVal v) =
+pwmWritePhys (PhysPinNumber n) (PwmVal v) =
   runPIO (pwmWrite (Phys n) v) >> return NoContent
 
 digitalWriteByte'
@@ -196,9 +196,9 @@ piBoardRev' :: Handler Int
 piBoardRev' = runPIO piBoardRev
 
 pinToBcmGpioWpi
-  :: PinNumber
+  :: WpiPinNumber
   -> Handler Int
-pinToBcmGpioWpi (PinNumber n) = do
+pinToBcmGpioWpi (WpiPinNumber n) = do
   res <- runPIO (return (pinToBcmGpio (Wpi n)))
   case res of
     Just r  -> return r
@@ -206,9 +206,9 @@ pinToBcmGpioWpi (PinNumber n) = do
                                               toByteString (show n) })
 
 pinToBcmGpioGpio
-  :: PinNumber
+  :: GpioPinNumber
   -> Handler Int
-pinToBcmGpioGpio (PinNumber n) = do
+pinToBcmGpioGpio (GpioPinNumber n) = do
   res <- runPIO (return (pinToBcmGpio (Gpio n)))
   case res of
     Just r  -> return r
@@ -216,9 +216,9 @@ pinToBcmGpioGpio (PinNumber n) = do
                                               toByteString (show n) })
 
 pinToBcmGpioPhys
-  :: PinNumber
+  :: PhysPinNumber
   -> Handler Int
-pinToBcmGpioPhys (PinNumber n) = do
+pinToBcmGpioPhys (PhysPinNumber n) = do
   res <- runPIO (return (pinToBcmGpio (Phys n)))
   case res of
     Just r  -> return r
