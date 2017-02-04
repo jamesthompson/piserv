@@ -46,14 +46,18 @@ I include the binary as it took a long time to build. Some packages, notably `te
 
 My RPi build (for binary included here) is as follows:
 
-Linux raspberrypi 4.4.34-v7+ #930 armv7l GNU/Linux Rhasbian Jessie.
+Linux raspberrypi 4.4.34-v7+ #930 armv7l GNU/Linux Rhaspbian "Jessie".
 
-processor : 0
-model name : ARMv7 Processor rev 5 (v7l)
-BogoMIPS : 38.40
-Features : half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm
-CPU implementer : 0x41
-CPU architecture: 7
-CPU variant : 0x0
-CPU part : 0xc07
-CPU revision : 5
+
+CPU Param | Value
+----------|------
+processor | 0
+model name | ARMv7 Processor rev 5 (v7l)
+BogoMIPS | 38.40
+Features | half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm
+CPU implementer | 0x41
+CPU architecture | 7
+CPU variant | 0x0
+CPU part | 0xc07
+CPU revision | 5
+
