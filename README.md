@@ -1,12 +1,10 @@
 # piserv
 
-A haskell-powered web server for Raspberry Pi Model B+ GPIO control making use of the haskell [wiringPi](https://hackage.haskell.org/package/wiringPi) package and [servant](https://hackage.haskell.org/package/servant).
-
-
+A haskell-powered web server for Raspberry Pi GPIO control making use of the haskell [wiringPi](https://hackage.haskell.org/package/wiringPi) package and [servant](https://hackage.haskell.org/package/servant).
 
 ## Running the server
 
-Download this repo and use the zipped binary `piserver` on your RPi model B. **Not tested on other RPis yet**.
+Download this repo and use the zipped binary `piserver` on your RPi. **Only tested on a Model B+ RPi as of yet**.
 
 Please install the low-level [wiringpi](http://wiringpi.com/) library first on your RPi thus:
 
