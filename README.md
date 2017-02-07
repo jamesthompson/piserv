@@ -44,7 +44,7 @@ I include the binary as it took a long time to build. Some packages, notably `te
 
 My RPi build (for binary included here) is as follows:
 
-Linux raspberrypi 4.4.34-v7+ #930 armv7l GNU/Linux Rhaspbian "Jessie".
+Linux raspberrypi 4.4.34-v7+ #930 armv7l GNU/Linux Raspbian "Jessie".
 
 
 CPU Param | Value
