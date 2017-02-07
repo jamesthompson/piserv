@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Piserv.Handlers where
@@ -7,6 +8,8 @@ import           Control.Exception          (IOException, catch)
 import           Control.Monad.Error.Class  (throwError)
 import           Control.Monad.IO.Class     (liftIO)
 import           Data.ByteString.Conversion (toByteString)
+import           Data.ByteString.Lazy       (ByteString)
+import           Data.Either                (either)
 import           Data.Semigroup             ((<>))
 import           Network.HTTP.Types.Status  (ok200)
 import           Network.Wai                (responseLBS)
@@ -53,39 +56,42 @@ piservServer = pinModePwmOutput
 runPIO
   :: IO a
   -> Handler a
-runPIO action = do
-    res <- liftIO $ catch (pure <$> action) excp
-    case res of
-      Right a -> pure a
-      Left e  -> throwError e
-  where excp a = pure (Left (err500 { errBody = toByteString (show (a :: IOException)) } ))
+runPIO action =
+    either throwError return =<< (liftIO (catch (fmap pure action) excp))
+  where errBodyStr a = toByteString (show (a :: IOException))
+        excp a = pure (Left (err500 { errBody = errBodyStr a } ))
 
 pinModePwmOutput :: Handler NoContent
-pinModePwmOutput = runPIO (pinMode (Wpi 1) PWM_OUTPUT) >> return NoContent
+pinModePwmOutput =
+  runPIO (pinMode (Wpi 1) PWM_OUTPUT) >> return NoContent
 
 pinModeGpioClock :: Handler NoContent
-pinModeGpioClock = runPIO (pinMode (Wpi 7) GPIO_CLOCK) >> return NoContent
+pinModeGpioClock =
+  runPIO (pinMode (Wpi 7) GPIO_CLOCK) >> return NoContent
 
 pinModeWpi
   :: WpiPinNumber
   -> DigitalMode
   -> Handler NoContent
-pinModeWpi (WpiPinNumber n) DInput  = runPIO (pinMode (Wpi n) INPUT) >> return NoContent
-pinModeWpi (WpiPinNumber n) DOutput = runPIO (pinMode (Wpi n) OUTPUT) >> return NoContent
+pinModeWpi (WpiPinNumber n) = \case
+  DInput  -> runPIO (pinMode (Wpi n) INPUT) >> return NoContent
+  DOutput -> runPIO (pinMode (Wpi n) OUTPUT) >> return NoContent
 
 pinModeGpio
   :: GpioPinNumber
   -> DigitalMode
   -> Handler NoContent
-pinModeGpio (GpioPinNumber n) DInput  = runPIO (pinMode (Gpio n) INPUT) >> return NoContent
-pinModeGpio (GpioPinNumber n) DOutput = runPIO (pinMode (Gpio n) OUTPUT) >> return NoContent
+pinModeGpio (GpioPinNumber n) = \case
+  DInput  -> runPIO (pinMode (Gpio n) INPUT) >> return NoContent
+  DOutput -> runPIO (pinMode (Gpio n) OUTPUT) >> return NoContent
 
 pinModePhys
   :: PhysPinNumber
   -> DigitalMode
   -> Handler NoContent
-pinModePhys (PhysPinNumber n) DInput  = runPIO (pinMode (Phys n) INPUT) >> return NoContent
-pinModePhys (PhysPinNumber n) DOutput = runPIO (pinMode (Phys n) OUTPUT) >> return NoContent
+pinModePhys (PhysPinNumber n) = \case
+  DInput  -> runPIO (pinMode (Phys n) INPUT) >> return NoContent
+  DOutput -> runPIO (pinMode (Phys n) OUTPUT) >> return NoContent
 
 pullUpDnControlWpi
   :: WpiPinNumber
@@ -110,21 +116,21 @@ pullUpDnControlPhys (PhysPinNumber n) (PudValue v) =
 
 digitalReadWpi
   :: WpiPinNumber
-  -> Handler Value
+  -> Handler PinResultValue
 digitalReadWpi (WpiPinNumber n) =
-  runPIO (digitalRead (Wpi n))
+  PinResultValue <$> runPIO (digitalRead (Wpi n))
 
 digitalReadGpio
   :: GpioPinNumber
-  -> Handler Value
+  -> Handler PinResultValue
 digitalReadGpio (GpioPinNumber n) =
-  runPIO (digitalRead (Gpio n))
+  PinResultValue <$> runPIO (digitalRead (Gpio n))
 
 digitalReadPhys
   :: PhysPinNumber
-  -> Handler Value
+  -> Handler PinResultValue
 digitalReadPhys (PhysPinNumber n) =
-  runPIO (digitalRead (Phys n))
+  PinResultValue <$> runPIO (digitalRead (Phys n))
 
 digitalWriteWpi
   :: WpiPinNumber
@@ -192,38 +198,46 @@ pwmSetClock'
 pwmSetClock' (PwmValClock c) =
   runPIO (pwmSetClock c) >> return NoContent
 
-piBoardRev' :: Handler Int
-piBoardRev' = runPIO piBoardRev
+piBoardRev' :: Handler BoardRev
+piBoardRev' = BoardRev <$> runPIO piBoardRev
+
+bcmToGpioError
+  :: Int
+  -> ByteString
+  -> Handler GpioPinNumber
+bcmToGpioError n pinType = do
+  let bodyStr = "Can't convert "         <>
+                pinType                  <>
+                " pin to GPIO for pin: " <>
+                toByteString n
+  throwError (err404 { errBody = bodyStr })
 
 pinToBcmGpioWpi
   :: WpiPinNumber
-  -> Handler Int
+  -> Handler GpioPinNumber
 pinToBcmGpioWpi (WpiPinNumber n) = do
   res <- runPIO (return (pinToBcmGpio (Wpi n)))
   case res of
-    Just r  -> return r
-    Nothing -> throwError (err404 { errBody = "Can't convert BCM to GPIO for pin: " <>
-                                              toByteString (show n) })
+    Just r  -> return (GpioPinNumber r)
+    Nothing -> bcmToGpioError n "WPI"
 
 pinToBcmGpioGpio
   :: GpioPinNumber
-  -> Handler Int
+  -> Handler GpioPinNumber
 pinToBcmGpioGpio (GpioPinNumber n) = do
   res <- runPIO (return (pinToBcmGpio (Gpio n)))
   case res of
-    Just r  -> return r
-    Nothing -> throwError (err404 { errBody = "Can't convert BCM to GPIO for pin: " <>
-                                              toByteString (show n) })
+    Just r  -> return (GpioPinNumber r)
+    Nothing -> bcmToGpioError n "GPIO"
 
 pinToBcmGpioPhys
   :: PhysPinNumber
-  -> Handler Int
+  -> Handler GpioPinNumber
 pinToBcmGpioPhys (PhysPinNumber n) = do
   res <- runPIO (return (pinToBcmGpio (Phys n)))
   case res of
-    Just r  -> return r
-    Nothing -> throwError (err404 { errBody = "Can't convert BCM to GPIO for pin: " <>
-                                              toByteString (show n) })
+    Just r  -> return (GpioPinNumber r)
+    Nothing -> bcmToGpioError n "PHYS"
 
 health :: Handler Health
 health = return OK
